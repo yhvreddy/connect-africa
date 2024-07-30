@@ -1,0 +1,9 @@
+#More Plugins - https://github.com/theanik/laravel-more-command
+https://www.twilio.com/en-us/blog/repository-pattern-in-laravel-application
+https://dev.to/carlomigueldy/getting-started-with-repository-pattern-in-laravel-using-inheritance-and-dependency-injection-2ohe
+
+
+# Strip
+https://medium.com/@microDesignn/integrate-stripe-in-laravel-10-via-laravel-cashier-4da7b220fddb
+
+

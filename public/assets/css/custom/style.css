@@ -1,0 +1,159 @@
+.login-card .login-main .theme-form .show-hide {
+    top: 68% !important;
+}
+
+.custom_btn_black {
+    background-color: #000000 !important;
+    border-color: #000000 !important;
+}
+
+div .action .view {
+    margin-right: 5px;
+}
+
+.img-fluid {
+    max-width: 70%;
+    height: auto;
+}
+
+.card .card-header {
+    padding: 20px 30px;
+}
+
+.card .card-header .title {
+    font-size: 14px;
+}
+
+/* .custom_alert {
+    z-index: 9999999;
+    position: absolute;
+    right: 5px !important;
+    top: 5px;
+} */
+
+.login_dashboard {}
+
+.login_dashboard .row {}
+
+.login_dashboard .row .card {
+    border-radius: 0px !important;
+}
+
+.login_dashboard .row .card .card-header {
+    border-radius: 0px;
+    padding: 14px;
+}
+
+.login_dashboard .row .card .card-body {
+    padding: 14px 18px !important;
+}
+
+.login_dashboard .row .card .card-body .widget-content {}
+
+.login_dashboard .row .card .card-body .widget-content h4 {}
+
+.login_dashboard .row .card .card-body .widget-content span {}
+
+.territory_overview {}
+
+.territory_overview .territory_overview_card .card-header {
+    background: #ababab;
+}
+
+.territory_overview .territory_overview_card .card-header h6 {
+    margin: 0px !important;
+    font-size: 20px;
+}
+
+
+/* Pages summery */
+.page_detail_summary {}
+
+.page_detail_summary .card {
+    border-radius: 5px !important;
+}
+
+.page_detail_summary .card .card-header {
+    border-radius: 0px;
+    padding: 14px;
+}
+
+.page_detail_summary .card .card-body {
+    padding: 14px 18px !important;
+}
+
+.custom_card {
+    border-radius: unset;
+}
+
+.custom_card {
+    border-radius: 0px !important;
+}
+
+.custom_card .card-header {
+    border-radius: 0px;
+    padding: 14px;
+}
+
+.custom_card .card-body {
+    padding: 18px 18px !important;
+}
+
+/* Card custom styles */
+
+.card {
+    border-radius: 5px !important;
+}
+
+.card .card-header {
+    border-radius: 0px;
+    padding: 14px;
+}
+
+.card .card-body {
+    padding: 18px 18px !important;
+}
+
+/* Styles */
+select.form-control {
+    appearance: auto !important;
+    padding: 8px !important;
+}
+
+
+td .action {}
+
+td .action {
+    display: flex;
+    justify-content: center;
+    font-size: 16px;
+}
+
+td .action li {
+    padding: 0px 1px 0px 1px;
+}
+
+td .action li.view {}
+
+td .action li.edit a {
+    color: #7366ff;
+}
+
+td .action li.delete a {
+    color: red !important;
+}
+
+td .action ul li.activate {}
+
+#customPageLength{
+    padding: 8px 4px !important;
+}
+
+.mini-card {
+    background-color: #FF075B;
+    color: #ffffff;
+}
+
+.mini-card span {
+    color: #ffffff;
+}
