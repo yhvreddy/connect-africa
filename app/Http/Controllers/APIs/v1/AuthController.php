@@ -76,8 +76,6 @@ class AuthController extends Controller
 
                 $otp = 123456; //rand(111111, 999999);
                 $user = $this->user->create([
-                    'name'      =>  $request->mobile,
-                    'email'     =>  $request->mobile.'@'.time().'.com',
                     'username'  =>  $request->mobile,
                     'mobile'    =>  $request->mobile,
                     'otp'       =>  $otp,
@@ -200,7 +198,6 @@ class AuthController extends Controller
         }
     }
 
-
     public function getUserDetails(Request $request){
         $user = $request->user();
         if($user){
@@ -247,8 +244,12 @@ class AuthController extends Controller
         }
     }
 
-    public function logoutUser(Request $request){
-        $request->user()->tokens()->delete();
-        return $this->success('logged out successfully.');
+    public function logOutUser(Request $request){
+        if($request->user()){
+            $request->user()->tokens()->delete();
+            return $this->success('User logged out successfully.');
+        }
+
+        return $this->validation('Invalid request to User logout.');
     }
 }

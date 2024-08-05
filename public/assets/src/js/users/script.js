@@ -35,32 +35,13 @@ var fetchDataToTable = $("#fetchDataToTable").DataTable({
             name: "name",
         },
         {
-            data: "created_date",
-            name: "created_at",
-        },
-        /*{
-            data: "referred",
-            name: "referred",
-        },*/
-        {
             data: "is_active",
             name: "status",
         },
-        /*{
-            data: "country_name",
-            name: "country_name",
-        },*/
-        // {
-        //     data: "subscription_status",
-        //     name: "subscription",
-        //     render: function (data, type, row) {
-        //         if (row.subscription_status === "active") {
-        //             return data + " | " + row.subscription_status_button;
-        //         }
-
-        //         return data;
-        //     },
-        // },
+        {
+            data: "created_date",
+            name: "created_at",
+        },
         {
             data: "actions",
             name: "actions",
@@ -74,7 +55,7 @@ var fetchDataToTable = $("#fetchDataToTable").DataTable({
     columnDefs: [
         {
             defaultContent: " ",
-            targets: [0, 4],
+            targets: [0],
             orderable: true,
             className: "text-center",
         },

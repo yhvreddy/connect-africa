@@ -22,6 +22,7 @@ class UserController extends Controller
 
     protected $user;
     protected $userRepository;
+    protected $countryRepository;
 
     public function __construct(
         User $_user,
@@ -185,7 +186,7 @@ class UserController extends Controller
             'name',
             'email',
             'created_at',
-            'stripe_customer_id',
+            // 'stripe_customer_id',
             'status',
             'id',
         ];
@@ -258,8 +259,9 @@ class UserController extends Controller
             ->limit($limit)
             ->orderBy($order, $dir)
             ->get();
-        // dd($users);
+
         foreach ($users as $key => $user) {
+            $user->sno  = $key + 1;
             $user->actions = '<ul class="action align-center">
                                 <li class="edit">
                                     <a href="'.route('admin.users.edit', ['user' => $user->id]).'" data-toggle="tooltip" data-placement="top" title="Edit">
@@ -289,12 +291,7 @@ class UserController extends Controller
 
             $user->is_active   = $user->is_active === 1?'Active':'Deactivate';
             $user->created_date = date('M d, Y', strtotime($user->created_at));
-            $user->sno  = $key + 1;
-            $user->referred = $user->referredUsers->count();
-            $user->country_name = $user->country->name;
-
-            $user->subscription_status = $user->subscription->subscription_status ?? '---';
-            $user->subscription_status_button = (isset($user->subscription->subscription_status)&&$user->subscription->subscription_status != 'active')?'':"<a href='javascript:0;' class='cancel_subscription' data-user_id='".$user->id."' data-url='".route('zq.stripe.subscription.cancel',['id'=>$user->id])."'>Cancel</a>";
+            $user->name  = $user?->name ?? '';
         }
 
         $response['draw'] = intval($data['draw']);

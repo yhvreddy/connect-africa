@@ -103,11 +103,11 @@
                             </select>
                         </div>
                         -->
+
                         <div class="col-2">
                             <select class="form-control" id="user_status">
                                 <option value="" selected>All Users</option>
                                 <option value="active">Active Users</option>
-                                <option value="failed">Failed Users</option>
                                 <option value="deactivated">Deactivated Users</option>
                             </select>
                         </div>
@@ -131,11 +131,8 @@
                                         <th>Sno</th>
                                         <th>Email</th>
                                         <th>Name</th>
-                                        <th>Joined</th>
-                                        <!--<th>Referred</th>-->
                                         <th>Status</th>
-                                        <!--<th>Territory</th>-->
-                                        {{-- <th>Subscription</th> --}}
+                                        <th>Joined</th>
                                         <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
