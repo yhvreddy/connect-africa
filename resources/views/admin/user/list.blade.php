@@ -81,7 +81,7 @@
                             </select>
                         </div>
 
-                        <div class="col-10">
+                        <div class="col-8">
                             <input type="search" class="form-control" placeholder="Search Users Here.." id="search" />
                         </div>
 
@@ -96,6 +96,12 @@
                         <div class="col-1">
                             <a href="javascript:void(0)" id="searchFilterButton" class="btn btn-primary float-right pt-2 pb-2 fs-5">
                                 <i class="fa fa-search"></i>
+                            </a>
+                        </div>
+
+                        <div class="col-2">
+                            <a href="{{route('admin.users.create')}}" class="btn btn-primary float-righ pt-2 pb-2">
+                                Add User
                             </a>
                         </div>
                     </div>

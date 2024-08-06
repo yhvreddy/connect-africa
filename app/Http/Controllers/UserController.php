@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Requests\UserRegisterRequest;
+use App\Http\Requests\UserRegisterStoreRequest;
 use App\Http\Requests\UserRegisterUpdateRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -28,7 +28,6 @@ class UserController extends Controller
         User $_user,
         UserRepository $userRepository,
         CountriesRepository $countryRepository
-
     ) {
         $this->user = $_user;
         $this->userRepository = $userRepository;
@@ -65,15 +64,45 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.user.add');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UserRegisterStoreRequest $request)
     {
-        //
+        try {
+            $response = DB::transaction(function () use ($request) {
+                $data = $request->all();
+                $newData = [];
+                if(!empty($data['password']) && isset($data['password'])){
+                    $newData['password'] = Hash::make($data['password']);
+                }else{
+                    $newData['password'] = Hash::make('admin@123!');
+                }
+                $newData['role_id'] = 4;
+
+
+                $data = array_merge($data, $newData);
+                $user = $this->userRepository->create($data);
+                if($user->save()) {
+                    return $this->success('User details saved successfully.', $user);
+                }
+
+                return $this->validation('Error while saving user details. Please try again later.');
+            });
+
+            $response = $response->getData();
+            if($response->status){
+                return redirect()->route('admin.users.index')->with('success', $response->message);
+            }
+
+            return redirect()->back()->with('failed', $response->message);
+
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
     }
 
     /**
