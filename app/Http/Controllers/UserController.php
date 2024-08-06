@@ -33,7 +33,6 @@ class UserController extends Controller
         $this->user = $_user;
         $this->userRepository = $userRepository;
         $this->countryRepository = $countryRepository;
-
     }
 
     /**
@@ -125,7 +124,7 @@ class UserController extends Controller
 
             $response = $response->getData();
             if($response->status){
-                return redirect()->route('zq.users.index')->with('success', $response->message);
+                return redirect()->route('admin.users.index')->with('success', $response->message);
             }
 
             return redirect()->back()->with('failed', $response->message);
@@ -160,7 +159,7 @@ class UserController extends Controller
 
             $response = $response->getData();
             if($response->status){
-                return redirect()->route('zq.users.index')->with('success', $response->message);
+                return redirect()->route('admin.users.index')->with('success', $response->message);
             }
 
             return redirect()->back()->with('failed', $response->message);
@@ -274,18 +273,13 @@ class UserController extends Controller
                                         <i class="icon-trash"></i>
                                     </a>
                                 </li>
-                                <li class="activate">
-                                    <a href="javascript:void(0);" class="btn-activate" data-id="'.$user->id.'" data-action="'.($user->is_active ? 'deactivate' : 'activate').'" data-toggle="tooltip" data-placement="top" title="'.($user->is_active ? 'Deactivate' : 'Activate').' User" >
-                                        '.($user->is_active ? "<i class='icon-reload text-danger'></i>" : "<i class='icon-reload text-success'></i>").'
-                                    </a>
-                                </li>
                             </ul>';
-             /*   <li class="view">
-                <a href="'.route('default.users.details', ['user' => $user->id]).'" data-toggle="tooltip" data-placement="top" title="View" ><i class="icon-eye"></i></a>
-            </li>*/
-            // <li class="edit">
-            //     <a href="'.route('zq.users.edit', ['user' => $user->id]).'" data-toggle="tooltip" data-placement="top" title="Edit">
-            //         <i class="icon-pencil-alt"></i>
+
+
+
+            // <li class="activate">
+            //     <a href="javascript:void(0);" class="btn-activate" data-id="'.$user->id.'" data-action="'.($user->is_active ? 'deactivate' : 'activate').'" data-toggle="tooltip" data-placement="top" title="'.($user->is_active ? 'Deactivate' : 'Activate').' User" >
+            //         '.($user->is_active ? "<i class='icon-reload text-danger'></i>" : "<i class='icon-reload text-success'></i>").'
             //     </a>
             // </li>
 
@@ -304,7 +298,6 @@ class UserController extends Controller
     public function updateStatus(Request $request, $userId, $action)
     {
         $user = User::findOrFail($userId);
-
         if (!$user) {
             return response()->json(['error' => 'User not found.'], 404);
         }
@@ -318,7 +311,6 @@ class UserController extends Controller
         }
 
         $user->save();
-
         return response()->json(['message' => 'User status updated successfully.'], 200);
     }
 

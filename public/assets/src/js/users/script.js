@@ -27,16 +27,20 @@ var fetchDataToTable = $("#fetchDataToTable").DataTable({
             name: "sno",
         },
         {
-            data: "email",
-            name: "email",
-        },
-        {
             data: "name",
             name: "name",
         },
         {
+            data: "email",
+            name: "email",
+        },
+        {
+            data: "mobile",
+            name: "mobile",
+        },
+        {
             data: "is_active",
-            name: "status",
+            name: "is_active",
         },
         {
             data: "created_date",

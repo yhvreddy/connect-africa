@@ -80,37 +80,17 @@
                                 <option value="100">100</option>
                             </select>
                         </div>
-                        <div class="col-3">
+                        <div class="col-10">
                             <input type="search" class="form-control" placeholder="User" id="search" />
                         </div>
-                        <!--
-                        <div class="col-2">
-                            <select class="form-control" id="records_duration">
-                                <option value="all_time">All Time</option>
-                                <option value="current_year">This Year</option>
-                                <option value="current_month">This Month</option>
-                                <option value="current_week">This Week</option>
-                                <option value="today">Today</option>
-                            </select>
-                        </div>
 
-                        <div class="col-2">
-                            <select class="form-control" id="territories" name="country_id">
-                                <option value="">All Territories</option>
-                                @foreach ($countries as $country)
-                                    <option value="{{$country->id}}">{{$country->name}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        -->
-
-                        <div class="col-2">
+                        {{-- <div class="col-2">
                             <select class="form-control" id="user_status">
                                 <option value="" selected>All Users</option>
                                 <option value="active">Active Users</option>
                                 <option value="deactivated">Deactivated Users</option>
                             </select>
-                        </div>
+                        </div> --}}
 
                         <div class="col-1">
                             <a href="javascript:void(0)" id="searchFilterButton" class="btn btn-primary float-right pt-2 pb-2 fs-5">
@@ -129,8 +109,9 @@
                                 <thead>
                                     <tr>
                                         <th>Sno</th>
-                                        <th>Email</th>
                                         <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Mobile</th>
                                         <th>Status</th>
                                         <th>Joined</th>
                                         <th class="text-center">Action</th>

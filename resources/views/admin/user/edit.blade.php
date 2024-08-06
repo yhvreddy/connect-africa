@@ -43,10 +43,18 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label" for="userEmail">Email / Username</label>
+                                <label class="form-label" for="userEmail">Email</label>
                                 <input class="form-control" id="userEmail" type="email" name="email" required="" value="{{$user->email}}" />
                                 @if($errors->has('email'))
                                     <span class="text-danger">{{ $errors->first('email') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" for="mobile">Mobile</label>
+                                <input class="form-control" id="mobile" type="text" name="mobile" required="" value="{{$user->mobile}}" />
+                                @if($errors->has('mobile'))
+                                    <span class="text-danger">{{ $errors->first('mobile') }}</span>
                                 @endif
                             </div>
 

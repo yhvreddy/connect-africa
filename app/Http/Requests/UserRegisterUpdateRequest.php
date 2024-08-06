@@ -28,14 +28,14 @@ class UserRegisterUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|alpha_spaces',
+            'name'      =>  'required',
+            'mobile'    =>  'required',
             'email' => [
                         'sometimes',
                         'email',
                         Rule::unique('users')->ignore($this->user->id, 'id', 'App\Models\User')
                     ],
-            'username' => 'alpha_num',
-            'password' => 'sometimes|alpha_num_symbols'
+            // 'password' => 'sometimes|alpha_num_symbols'
         ];
     }
 

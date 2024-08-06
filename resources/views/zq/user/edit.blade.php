@@ -30,7 +30,7 @@
                     <h5>Edit User</h5>
                 </div>
                 <div class="card-body">
-                    <form class="needs-validation" novalidate="" method="POST" autocomplete="false" action="{{route('zq.users.update', ['user' => $user->id])}}">
+                    <form class="needs-validation" novalidate="" method="POST" autocomplete="false" action="{{route('admin.users.update', ['user' => $user->id])}}">
                         @csrf
                         @method('PUT')
                         <div class="row g-3 mb-3">
@@ -43,10 +43,18 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label" for="userEmail">Email / Username</label>
+                                <label class="form-label" for="userEmail">Email</label>
                                 <input class="form-control" id="userEmail" type="email" name="email" required="" value="{{$user->email}}" />
                                 @if($errors->has('email'))
                                     <span class="text-danger">{{ $errors->first('email') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" for="mobile">Mobile</label>
+                                <input class="form-control" id="mobile" type="text" name="mobile" required="" value="{{old('mobile') ?? $user->mobile}}" />
+                                @if($errors->has('mobile'))
+                                    <span class="text-danger">{{ $errors->first('mobile') }}</span>
                                 @endif
                             </div>
 
