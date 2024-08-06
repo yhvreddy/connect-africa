@@ -150,7 +150,7 @@ class UserController extends Controller
     {
         try {
             $response = DB::transaction(function () use ($user) {
-                if ($user->delete()) {
+                if ($user->forceDelete()) {
                     return $this->success('User deleted successfully.');
                 }
 

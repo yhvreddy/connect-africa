@@ -80,8 +80,9 @@
                                 <option value="100">100</option>
                             </select>
                         </div>
+
                         <div class="col-10">
-                            <input type="search" class="form-control" placeholder="User" id="search" />
+                            <input type="search" class="form-control" placeholder="Search Users Here.." id="search" />
                         </div>
 
                         {{-- <div class="col-2">
