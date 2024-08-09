@@ -18,6 +18,8 @@ use App\Http\Traits\TruFlix;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Http\Requests\UserRegisterRequest;
+use App\Http\Requests\UserUpdateRequest;
+use App\Repositories\CountriesRepository;
 
 class AuthController extends Controller
 {
@@ -25,13 +27,16 @@ class AuthController extends Controller
 
     protected $user;
     protected $userRepository;
+    protected $country;
 
     public function __construct(
         User $_user,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        CountriesRepository $country
     ) {
-        $this->user = $_user;
-        $this->userRepository = $userRepository;
+        $this->user             =   $_user;
+        $this->userRepository   =   $userRepository;
+        $this->country          =   $country;
     }
 
     //Auth User
@@ -241,6 +246,61 @@ class AuthController extends Controller
 
         } catch (\Throwable $th) {
             return $this->validation($th->getMessage());
+        }
+    }
+
+
+    public function updateUserDetails(UserUpdateRequest $request)
+    {
+        try {
+            if(!$request->wantsJson()){
+                return $this->validation('Invalid data format, Its allow only json request.');
+            }
+
+            $user = $request->user();
+            if (!$user) {
+                return $this->validation('Invalid Request To Update Details.');
+            }
+
+            if(isset($request->password) && !is_numeric($request->password)){
+                return $this->validation('Invalid Pin Number Format.');
+            }
+
+            $checkMobile = $this->user->where('mobile', $request->mobile)->where('id', '!=', $user->id)->get();
+            if($checkMobile->count()){
+                return $this->validation('Sorry, Mobile Number Already Exists.');
+            }
+
+            if($user){
+
+                $country = null;
+                if(isset($request->country) && !empty($request->country)){
+                    $country = $this->country->where('name', $request->country)->first();
+                    if(!$country){
+                        $country = $this->country->create([
+                            'name' => $request->country,
+                        ]);
+                    }
+                }
+
+                if($country){
+                    $user->country_id = $country->id;
+                }
+
+                $user->name = $request->name;
+                $user->email = $request->email;
+                $user->mobile = $request->mobile;
+                if (isset($request->password)) {
+                    $user->password = Hash::make($request->password);
+                }
+                $user->save();
+                return $this->success('User Updated successfully.', new UserResource($user));
+            }
+
+            return $this->validation('Sorry, Failed To Update Details.');
+
+        } catch (\Throwable $th) {
+            return $this->internalServer('Something wrong', $th->getMessage());
         }
     }
 

@@ -37,6 +37,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::get('user/details', [AuthController::class, 'getUserDetails']);
+        Route::post('user/update-details', [AuthController::class, 'updateUserDetails']);
         Route::post('auth/logout', [AuthController::class, 'logOutUser']);
 
         Route::prefix('stripe')->namespace('\App\Http\Controllers\Stripe')->group(function () {

@@ -15,7 +15,6 @@ class Countries extends Model implements CountryContract
 
     protected $fillable = [
         'name',
-        'code',
         'is_active'
     ];
 
