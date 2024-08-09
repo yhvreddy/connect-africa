@@ -19,7 +19,10 @@ use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Http\Requests\UserRegisterRequest;
 use App\Http\Requests\UserUpdateRequest;
+use App\Http\Requests\VerifyUserTokenRequest;
 use App\Repositories\CountriesRepository;
+use Laravel\Sanctum\PersonalAccessToken;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -249,7 +252,6 @@ class AuthController extends Controller
         }
     }
 
-
     public function updateUserDetails(UserUpdateRequest $request)
     {
         try {
@@ -301,6 +303,46 @@ class AuthController extends Controller
 
         } catch (\Throwable $th) {
             return $this->internalServer('Something wrong', $th->getMessage());
+        }
+    }
+
+    public function verifyUserToken(VerifyUserTokenRequest $request){
+        try{
+            $authorizationHeader = $request->token;
+            if (!$authorizationHeader) {
+                return $this->validation('Authorization token not found');
+            }
+
+            $token = str_replace('Bearer ', '', $authorizationHeader);
+            $tokenDetails = PersonalAccessToken::findToken($token);
+            if (!$tokenDetails) {
+                return $this->validation('Token not found');
+            }
+
+            $user = $tokenDetails->tokenable;
+            if (!$user || !$user instanceof \App\Models\User) {
+                return $this->validation('Token does not belong to a valid user');
+            }
+
+            if (Carbon::now()->greaterThan($tokenDetails->expires_at)) {
+                return $this->validation('Token has expired');
+            }
+
+            $check = Auth::loginUsingId($user->id);
+            if ($check) {
+                $user = auth()->user();
+                // $tokenResult = $user->createToken('PersonalAccessToken_'.$user->id);
+                $user->accessToken = $token; //$tokenResult->plainTextToken;
+                $user->token_type = 'Bearer';
+                $user->send_password = false;
+                $user = new UserResource($user);
+                return $this->success('Token verified successfully.', $user);
+            }
+
+            return $this->validation('Wrong token or token expired.');
+
+        }catch(\Exception $e){
+            return $this->internalServer($e->getMessage());
         }
     }
 

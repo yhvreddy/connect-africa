@@ -34,6 +34,9 @@ Route::prefix('v1')->group(function () {
         Route::post('forget-pin', [AuthController::class, 'forgetPin']);
     });
 
+    Route::post('user-verify-token', [AuthController::class, 'verifyUserToken']);
+
+
     Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::get('user/details', [AuthController::class, 'getUserDetails']);
