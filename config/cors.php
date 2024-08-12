@@ -1,6 +1,6 @@
 <?php
 if (!defined("IS_REQUEST_FROM_API")) {
-    define("IS_REQUEST_FROM_API", 0); 
+    define("IS_REQUEST_FROM_API", 0);
 }
 $isAPI = IS_REQUEST_FROM_API;
 return [
@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'paths' => ['api/*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
     'allowed_origins' => ['*'],
     'allowed_origins_patterns' => [],
