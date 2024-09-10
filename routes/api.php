@@ -10,6 +10,7 @@ use App\Http\Controllers\APIs\v1\UserController;
 use App\Http\Controllers\APIs\v1\SettingsController;
 use App\Http\Controllers\APIs\v1\EntertainmentController;
 use App\Http\Controllers\APIs\EntertainmentMasterDataController;
+use App\Http\Controllers\APIs\CASubscriptionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,14 @@ Route::prefix('v1')->group(function () {
 
     Route::post('user-verify-token', [AuthController::class, 'verifyUserToken']);
 
+    Route::prefix('subscriptions')->group(function () {
+        Route::get('/list', [CASubscriptionsController::class, 'getSubscriptions']);
+        Route::get('/type-list/{subscription}', [CASubscriptionsController::class, 'getSubscriptionTypes']);
+        Route::get('/plans-list/{subscriptionTypeId}', [CASubscriptionsController::class, 'getSubscriptionPlans']);
+        Route::get('/payment-methods', [CASubscriptionsController::class, 'paymentMethods']);
+        Route::get('/payment-methods/{subscription}', [CASubscriptionsController::class, 'paymentMethodsBySubscription']);
+    });
+
 
     Route::middleware(['auth:sanctum'])->group(function () {
 
@@ -47,7 +56,7 @@ Route::prefix('v1')->group(function () {
             // Stripe Payments Routes
             Route::get('/', 'IndexController@index');
 
-            Route::prefix('subscription')->group(function (){
+            Route::prefix('subscription')->group(function () {
                 Route::post('/create', 'SubscriptionController@create');
                 Route::post('/cancel', 'SubscriptionController@cancel');
                 Route::post('/payment-status', 'SubscriptionController@paymentStatus');
