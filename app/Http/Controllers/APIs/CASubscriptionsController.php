@@ -11,6 +11,7 @@ use App\Models\SubscriptionTypes;
 use App\Models\SubscriptionPlans;
 use App\Models\PaymentMethods;
 use App\Models\SubscriptionPaymentMethod;
+use App\Http\Requests\CASubscriptions\CreateRequest;
 
 class CASubscriptionsController extends Controller
 {
@@ -67,5 +68,10 @@ class CASubscriptionsController extends Controller
             ->with('paymentMethod')
             ->where('subscription_id', $subscription)->get();
         return $this->success('Payment Methods By Subscription List', $paymentMethods);
+    }
+
+    public function createSubscriptions(CreateRequest $request)
+    {
+        dd($request->all());
     }
 }
