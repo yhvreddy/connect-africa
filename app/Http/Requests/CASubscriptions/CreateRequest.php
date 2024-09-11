@@ -45,7 +45,7 @@ class CreateRequest extends FormRequest
             'subscription_payment_id' => [
                 'required',
                 'integer',
-                'exists:subscriptions_payments,id'
+                'exists:subscriptions_payment_methods,id'
             ],
         ];
     }

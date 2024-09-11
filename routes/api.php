@@ -44,7 +44,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/payment-methods', [CASubscriptionsController::class, 'paymentMethods']);
         Route::get('/payment-methods/{subscription}', [CASubscriptionsController::class, 'paymentMethodsBySubscription']);
 
-        Route::get('/create', [CASubscriptionsController::class, 'createSubscriptions']);
+        Route::post('/create', [CASubscriptionsController::class, 'createSubscriptions']);
     });
 
 
