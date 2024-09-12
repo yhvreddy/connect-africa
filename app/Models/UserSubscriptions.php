@@ -14,26 +14,21 @@ class UserSubscriptions extends Model implements UserSubscriptionsContract
 
     protected $fillable = [
         'user_id',
-        'price_id',
-        'trial_ends_at',
-        'starts_at',
-        'ends_at',
-        'status',
-        'response_data',
         'subscription_id',
-        'subscription_status',
-        'payment_status',
+        'subscription_type_id',
+        'subscription_plan_id',
+        'subscription_payment_id',
         'amount',
-        'tax_amount',
-        'total_amount',
-        'next_due_date',
-        'customer_name'
+        'type',
+        'start_date',
+        'end_date',
+        'status',
+        'payment_status',
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        'response_data'
     ];
 
 
@@ -42,7 +37,8 @@ class UserSubscriptions extends Model implements UserSubscriptionsContract
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function history(){
+    public function history()
+    {
         return $this->hasMany(UserSubscriptionsHistory::class, 'user_subscription_id', 'id');
     }
 }
