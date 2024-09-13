@@ -43,12 +43,14 @@ Route::prefix('v1')->group(function () {
         Route::get('/plans-list/{subscriptionTypeId}', [CASubscriptionsController::class, 'getSubscriptionPlans']);
         Route::get('/payment-methods', [CASubscriptionsController::class, 'paymentMethods']);
         Route::get('/payment-methods/{subscription}', [CASubscriptionsController::class, 'paymentMethodsBySubscription']);
-
-        Route::post('/create', [CASubscriptionsController::class, 'createSubscriptions']);
     });
 
 
     Route::middleware(['auth:sanctum'])->group(function () {
+
+        Route::prefix('subscriptions')->group(function () {
+            Route::post('/create', [CASubscriptionsController::class, 'createSubscriptions']);
+        });
 
         Route::get('user/details', [AuthController::class, 'getUserDetails']);
         Route::post('user/update-details', [AuthController::class, 'updateUserDetails']);

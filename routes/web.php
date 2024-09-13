@@ -21,6 +21,8 @@ use App\Http\Controllers\OttController;
 use App\Http\Controllers\CategorizeController;
 use App\Http\Controllers\CountriesController;
 
+use App\Http\Controllers\CASubscriptionController;
+
 
 Route::get('/', [IndexController::class, 'index'])->name('/');
 Route::get('/login/{role}', [AuthController::class, 'index'])->name('login');
@@ -102,14 +104,13 @@ Route::middleware(['zq'])->prefix('zq')->name('zq.')->group(function () {
         Route::get('/show/users/{affiliate}/{type}', [AffiliateController::class, 'showUserDetails'])->name('show.users');
 
         Route::get('deactivated-list', [AffiliateController::class, 'deactivatedList'])
-        ->name('deactivated.list');
+            ->name('deactivated.list');
 
 
         Route::get('soft-delete/{affiliate}', [AffiliateController::class, 'softDelete'])->name('soft-delete');
         Route::get('ajax-data', [AffiliateController::class, 'fetchDataListForAjax'])->name('fetch.data.ajax');
         Route::get('users/ajax-data', [AffiliateController::class, 'fetchAffiliateUsersListForAjax'])->name('users.fetch.data.ajax');
         Route::put('/affiliate/{affiliateId}/{action}', [AffiliateController::class, 'updateStatus'])->name('update.status');
-
     });
 
     Route::get('profile/{zq}', [IndexController::class, 'profileEdit'])->name('profile.edit');
@@ -120,12 +121,12 @@ Route::middleware(['zq'])->prefix('zq')->name('zq.')->group(function () {
     Route::put('settings/update', [SettingsController::class, 'updateSettings'])->name('settings.site.update');
 
     Route::prefix('stripe')->namespace('\App\Http\Controllers\Stripe')
-    ->name('stripe.')
-    ->group(function () {
-        Route::prefix('subscription')->name('subscription.')->group(function (){
-            Route::get('/cancel/{id}', 'SubscriptionController@cancelStriptSubscriptionOnWeb')->name('cancel');
+        ->name('stripe.')
+        ->group(function () {
+            Route::prefix('subscription')->name('subscription.')->group(function () {
+                Route::get('/cancel/{id}', 'SubscriptionController@cancelStriptSubscriptionOnWeb')->name('cancel');
+            });
         });
-    });
 });
 
 Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -139,76 +140,21 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('users/soft-delete/{user}', [UserController::class, 'softDelete'])->name('users.soft-delete');
     Route::get('ajax-data', [UserController::class, 'fetchDataListForAjax'])->name('fetch.data.ajax');
     Route::put('/users/{userId}/{action}', [UserController::class, 'updateStatus'])->name('update.status');
-});
-/*
-Route::middleware(['partner'])->prefix('partner')->name('partner.')->group(function () {
-    Route::get('/dashboard', [IndexController::class, 'partnerDashboard'])->name('dashboard');
-    Route::get('/logout', [AuthController::class, 'logOutSession'])->name('logout');
 
-    Route::get('territory/users', [PartnerController::class, 'territoryUsers'])->name('territory.users');
-    Route::get('territory/users/ajax-data', [PartnerController::class, 'fetchTerritoryUsersListForAjax'])->name('territory.users.fetch.data.ajax');
 
-    Route::get('affiliates', [PartnerController::class, 'affiliates'])->name('affiliate');
-    Route::get('affiliates/ajax-data', [PartnerController::class, 'affiliateListForAjax'])->name('affiliate.fetch.data.ajax');
-
-    Route::get('profile/{partner}', [PartnerController::class, 'profileEdit'])->name('profile.edit');
-    Route::put('profile/{partner}', [PartnerController::class, 'profileUpdate'])->name('profile.update');
-
-    Route::prefix('payments')->name('payments.')->group(function () {
-        Route::get('/', [PaymentController::class, 'partnersPayments'])->name('index');
-        Route::get('payments/load-data-ajax', [PaymentController::class, 'fetchTransactionsList'])->name('fetch.data.ajax');
+    Route::prefix('subscriptions')->name('subscription.')->group(function () {
+        Route::get('/', [CASubscriptionController::class, 'getSubscriptionsList'])->name('list');
     });
-});*/
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/logout', [AuthController::class, 'logOutSession'])->name('web.logout');
 });
 
-Route::middleware(['zq_admin'])->name('default.')->group(function () {
-    Route::resource('movies', MoviesController::class);
-    Route::get('movies/delete-video/{video}', [MoviesController::class, 'deleteVideoSource'])->name('movies.video.delete');
-    Route::get('ajax-data', [MoviesController::class, 'fetchDataListForAjax'])->name('fetch.data.ajax');
-    Route::put('/movie/{movieId}/{action}', [MoviesController::class, 'updateStatus'])->name('movie.update.status');
-    //Categories Type
-    Route::get('/movies/categorize-list/{categorize}', [MoviesController::class, 'categorizeMovies'])->name('movies.categorize.list');
-
-
-    Route::resource('shows', ShowsController::class);
-    Route::get('shows/delete/video/{video}', [ShowsController::class, 'deleteVideoSource'])->name('shows.video.delete');
-    Route::get('show-ajax-data', [ShowsController::class, 'showFetchDataListForAjax'])->name('show.fetch.data.ajax');
-    Route::put('/show/{showId}/{action}', [ShowsController::class, 'updateStatus'])->name('show.update.status');
-    //Categories Type
-    Route::get('/shows/categorize-list/{categorize}', [ShowsController::class, 'categorizeShows'])->name('shows.categorize.list');
-
-    //Default update order number
-    Route::get('/entertainment/update-order/{type}', [MoviesController::class, 'updateOrderOfEntertainment'])->name('entertainment.order.update');
-
-    Route::resource('events', EventsController::class);
-    Route::get('event-ajax-data', [EventsController::class, 'eventFetchDataListForAjax'])->name('event.fetch.data.ajax');
-    Route::put('/event/{eventId}/{action}', [EventsController::class, 'updateStatus'])->name('event.update.status');
-});
+Route::middleware(['zq_admin'])->name('default.')->group(function () {});
 
 Route::name('default.')->group(function () {
     Route::get('users/details/{user}', [DefaultController::class, 'userDetails'])->name('users.details');
-
-    Route::get('territory/details/{territory}', [DefaultController::class, 'territoryDetails'])->name('territory');
-
-    Route::get('territory/users/{territory}', [DefaultController::class, 'territoryUsers'])->name('territory.users');
-    Route::get('territory/ajax-list/{territory}', [DefaultController::class, 'territoryUsersList'])->name('territory.users.list');
-
-    Route::get('get-users/{affiliate}/{type}', [DefaultController::class, 'showUserDetails'])->name('show.users');
-    Route::get('get-users/ajax-data', [DefaultController::class, 'fetchAffiliateUsersListForAjax'])->name('show.users.fetch.data.ajax');
-
-    Route::get('affiliates/show/{affiliate}', [DefaultController::class, 'affiliateDetailView'])->name('affiliate.detail.view');
-
-    Route::prefix('affiliates')->name('affiliates.')->group(function () {
-        Route::get('/list/{id}', [AffiliateController::class, 'index'])->name('index');
-        Route::get('/show/{affiliate}', [AffiliateController::class, 'show'])->name('show');
-        Route::get('/show/users/{affiliate}/{type}', [AffiliateController::class, 'showUserDetails'])->name('show.users');
-        Route::get('ajax-data/{id}', [AffiliateController::class, 'fetchDataListForAjax'])->name('fetch.data.ajax');
-        Route::get('users/ajax-data', [AffiliateController::class, 'fetchAffiliateUsersListForAjax'])->name('users.fetch.data.ajax');
-    });
-
 });
 
 
