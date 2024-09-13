@@ -85,11 +85,15 @@ class CASubscriptionsController extends Controller
             return $this->validation('Invalid request format.');
         }
 
+        $user = $request->user();
+        if ($user->id !== $request->user_id) {
+            return $this->validation('Invalid user to create subscription.');
+        }
+
         $subscription = $this->subscriptions->find($request->subscription_id);
         $subscriptionType = $this->subscriptionTypes->find($request->subscription_type_id);
         $subscriptionPlan = $this->subscriptionPlans->find($request->subscription_plan_id);
         $subscriptionPayment = $this->subscriptionPaymentMethods->find($request->subscription_payment_id);
-        $user = $this->users->find($request->user_id);
         if ($user && $subscription && $subscriptionType && $subscriptionPlan && $subscriptionPayment) {
             if ($user->subscription) {
                 if ($user->subscription->status == 'inactive') {

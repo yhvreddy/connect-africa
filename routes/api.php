@@ -55,39 +55,5 @@ Route::prefix('v1')->group(function () {
         Route::get('user/details', [AuthController::class, 'getUserDetails']);
         Route::post('user/update-details', [AuthController::class, 'updateUserDetails']);
         Route::post('auth/logout', [AuthController::class, 'logOutUser']);
-
-        Route::prefix('stripe')->namespace('\App\Http\Controllers\Stripe')->group(function () {
-            // Stripe Payments Routes
-            Route::get('/', 'IndexController@index');
-
-            Route::prefix('subscription')->group(function () {
-                Route::post('/create', 'SubscriptionController@create');
-                Route::post('/cancel', 'SubscriptionController@cancel');
-                Route::post('/payment-status', 'SubscriptionController@paymentStatus');
-            });
-        });
-    });
-
-    Route::prefix('stripe')->namespace('\App\Http\Controllers\Stripe')->group(function () {
-        Route::post('/webhook', 'IndexController@webhook');
-    });
-
-    Route::prefix('entertainment')->group(function () {
-
-        Route::prefix('master')->group(function () {
-            Route::get('genres', [EntertainmentMasterDataController::class, 'getGenresList']);
-            Route::get('ott-platforms', [EntertainmentMasterDataController::class, 'getOttPlatFormList']);
-            Route::get('event-types', [EntertainmentMasterDataController::class, 'getEventTypeList']);
-        });
-
-        Route::resource('movies', MoviesController::class);
-        Route::get('movies/categorized/list', [MoviesController::class, 'categorizedList']);
-
-        Route::resource('shows', ShowsController::class);
-        Route::get('shows/categorized/list', [ShowsController::class, 'categorizedList']);
-
-        Route::resource('events', EventsController::class);
-
-        Route::get('get-categorized/{type}', [EntertainmentController::class, 'categorizedList']);
     });
 });
