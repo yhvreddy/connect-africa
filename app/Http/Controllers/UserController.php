@@ -176,7 +176,10 @@ class UserController extends Controller
     {
         try {
             $response = DB::transaction(function () use ($user) {
-                $user->subscription->delete();
+                if (isset($user->subscription)) {
+                    $user->subscription->delete();
+                }
+
                 if ($user->forceDelete()) {
                     return $this->success('User deleted successfully.');
                 }
