@@ -63,30 +63,34 @@ class User extends Authenticatable implements UserContract
         'email_verified_at' => 'datetime',
     ];
 
-    public function findByField($requestData){
+    public function findByField($requestData)
+    {
         return $this->where($requestData);
     }
 
 
     //Roles Check
-    public function isZq(){
-        if($this->role_id === 1){
+    public function isZq()
+    {
+        if ($this->role_id === 1) {
             return true;
         }
 
         return false;
     }
 
-    public function isAdmin(){
-        if($this->role_id === 2){
+    public function isAdmin()
+    {
+        if ($this->role_id === 2) {
             return true;
         }
 
         return false;
     }
 
-    public function isPartner(){
-        if($this->role_id === 3){
+    public function isPartner()
+    {
+        if ($this->role_id === 3) {
             return true;
         }
 
@@ -98,16 +102,18 @@ class User extends Authenticatable implements UserContract
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function role(){
+    public function role()
+    {
         return $this->belongsTo(Role::class, 'role_id');
     }
-    
+
     /**
      * Get the country that owns the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function country(){
+    public function country()
+    {
         return $this->hasOne(Countries::class, 'id', 'country_id');
     }
 
@@ -116,16 +122,18 @@ class User extends Authenticatable implements UserContract
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function affiliates(){
+    public function affiliates()
+    {
         return $this->hasMany(User::class, 'user_referral_id', 'id');
     }
-    
+
     /**
      * Get all of the referredUsers for the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function referredUsers(){
+    public function referredUsers()
+    {
         return $this->hasMany(User::class, 'user_referral_id', 'id');
     }
 
@@ -134,12 +142,14 @@ class User extends Authenticatable implements UserContract
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function affiliate(){
+    public function affiliate()
+    {
         return $this->hasOne(User::class, 'user_referral_id', 'id');
     }
 
 
-    public function getAffiliatesReferralByCountry($user_referral_id, $country_id){
+    public function getAffiliatesReferralByCountry($user_referral_id, $country_id)
+    {
         $users = $this->where('country_id', $country_id)->where('user_referral_id', $user_referral_id)->where('is_active', 1)->get();
         return $users;
     }
@@ -149,16 +159,18 @@ class User extends Authenticatable implements UserContract
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function stripe(){
+    public function stripe()
+    {
         return $this->hasOne(UserStripe::class, 'user_id');
     }
-    
+
     /**
      * Get the subscription associated with the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function subscription(){
+    public function subscription()
+    {
         return $this->hasOne(UserSubscriptions::class, 'user_id');
     }
 
@@ -167,7 +179,8 @@ class User extends Authenticatable implements UserContract
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function stripe_history(){
+    public function stripe_history()
+    {
         return $this->hasMany(UserSubscriptionsHistory::class, 'user_id', 'id');
     }
 }
