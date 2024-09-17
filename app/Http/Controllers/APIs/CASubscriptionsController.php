@@ -52,17 +52,15 @@ class CASubscriptionsController extends Controller
         return $this->success('Subscriptions List', $subscriptions);
     }
 
-    public function getSubscriptionTypes(Request $request)
+    public function getSubscriptionTypes($subscription)
     {
-        $subscription = $request->subscription;
         $subscriptionTypes = $this->subscriptionTypes->with('subscription')
             ->where('subscription_id', $subscription)->get();
         return $this->success('Subscriptions Types List', $subscriptionTypes);
     }
 
-    public function getSubscriptionPlans(Request $request)
+    public function getSubscriptionPlans($subscriptionTypeId)
     {
-        $subscriptionTypeId = $request->subscriptionTypeId;
         $subscriptionPlans = $this->subscriptionPlans->with('subscriptionType')->where('subscription_type_id', $subscriptionTypeId)->get();
         return $this->success('Subscriptions Plans List', $subscriptionPlans);
     }
@@ -73,9 +71,8 @@ class CASubscriptionsController extends Controller
         return $this->success('Payment Methods List', $paymentMethods);
     }
 
-    public function paymentMethodsBySubscription(Request $request)
+    public function paymentMethodsBySubscription($subscription)
     {
-        $subscription = $request->subscription;
         $paymentMethods = $this->subscriptionPaymentMethods
             ->with('paymentMethod')
             ->where('subscription_id', $subscription)->get();
@@ -118,8 +115,7 @@ class CASubscriptionsController extends Controller
                 'subscription_payment_id'   =>  $subscriptionPayment->id,
                 'amount'    =>  $subscriptionPlan->amount,
                 'type'    =>  strtolower(str_replace(' ', '-', $subscriptionPlan->type)),
-                'status'    =>  'inactive',
-                'payment_status'    =>  'unpaid'
+                'status'    =>  'pending'
             ];
 
             $userSubscription = $this->userSubscription->create($data);

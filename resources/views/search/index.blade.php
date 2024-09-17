@@ -1,6 +1,6 @@
 @extends('layouts.simple.master')
 
-@section('title', 'Subscriptions List')
+@section('title', 'Users List')
 
 @section('css')
 
@@ -74,10 +74,8 @@
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Mobile</th>
-                                            <th>subscription</th>
-                                            <th>Plan</th>
-                                            <th>Amount</th>
-                                            <th>status</th>
+                                            <th>Status</th>
+                                            <th>Joined</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -94,7 +92,7 @@
         var session_layout = '{{ session()->get('layout') }}';
     </script>
 
-    <input type="hidden" value="{{ route('admin.subscription.fetch.data.list') }}" id="fetchListDataUrl" />
+    <input type="hidden" value="{{ route('admin.fetch.data.ajax') }}" id="fetchListDataUrl" />
     <input type="hidden" value="{{ route('admin.update.status', ['userId' => ':userId', 'action' => ':action']) }}"
         id="updateStatusUrl" />
 
@@ -103,5 +101,5 @@
 @section('script')
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/2.0.2/js/dataTables.js"></script>
-    <script src="{{ asset('assets/src/js/subscriptions/script.js') }}"></script>
+    <script src="{{ asset('assets/src/js/users/script.js') }}"></script>
 @endsection

@@ -22,7 +22,6 @@ use App\Http\Controllers\CategorizeController;
 use App\Http\Controllers\CountriesController;
 
 use App\Http\Controllers\CASubscriptionController;
-use App\Http\Controllers\APIs\CASubscriptionsController;
 
 
 Route::get('/', [IndexController::class, 'index'])->name('/');
@@ -145,16 +144,8 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
 
     Route::prefix('subscriptions')->name('subscription.')->group(function () {
         Route::get('/', [CASubscriptionController::class, 'getSubscriptionsList'])->name('list');
-        Route::get('/fetch/data-list', [CASubscriptionController::class, 'fetchSubscriptionsList'])->name('fetch.data.list');
-        Route::get('/edit/{subscription}', [CASubscriptionController::class, 'editSubscription'])->name('edit.data');
-        Route::post('/update-details/{subscription}', [CASubscriptionController::class, 'updateSubscription'])->name('update.data');
     });
 });
-
-Route::get('/subscriptions/types', [CASubscriptionsController::class, 'getSubscriptionTypes'])->name('get.subscription.types');
-Route::get('/subscriptions/plans', [CASubscriptionsController::class, 'getSubscriptionPlans'])->name('get.subscription.plans');
-Route::get('/subscriptions/payment-methods', [CASubscriptionsController::class, 'paymentMethodsBySubscription'])->name('get.subscription.payment.methods');
-
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/logout', [AuthController::class, 'logOutSession'])->name('web.logout');
