@@ -14,6 +14,7 @@ use App\Models\SubscriptionPaymentMethod;
 use App\Models\User;
 use App\Models\UserSubscriptions;
 use App\Http\Requests\CASubscriptions\CreateRequest;
+use App\Http\Requests\CASubscriptions\UpdateRequest;
 use Carbon\Carbon;
 
 class CASubscriptionsController extends Controller
@@ -127,5 +128,49 @@ class CASubscriptionsController extends Controller
         }
 
         return $this->validation('Invalid Request.');
+    }
+
+    public function updateSubscriptions(UpdateRequest $request)
+    {
+        if (!$request->wantsJson()) {
+            return $this->validation('Invalid request format.');
+        }
+
+        $user = $request->user();
+        if ($user->id !== $request->user_id) {
+            return $this->validation('Invalid user to update subscription.');
+        }
+
+        $userSubscription = $this->userSubscription->where('user_id', $user->id)->first();
+        if (!$userSubscription) {
+            return $this->validation('User didn\'t found any subscription.');
+        }
+
+        $subscription = $this->subscriptions->find($request->subscription_id);
+        $subscriptionType = $this->subscriptionTypes->find($request->subscription_type_id);
+        $subscriptionPlan = $this->subscriptionPlans->find($request->subscription_plan_id);
+        $subscriptionPayment = $this->subscriptionPaymentMethods->find($request->subscription_payment_id);
+        if ($user && $subscription && $subscriptionType && $subscriptionPlan && $subscriptionPayment) {
+
+            $userSubscription->user_id   = $user->id;
+            $userSubscription->subscription_id   =  $subscription->id;
+            $userSubscription->subscription_type_id   =  $subscriptionType->id;
+            $userSubscription->subscription_plan_id   =  $subscriptionPlan->id;
+            $userSubscription->subscription_payment_id   =  $subscriptionPayment->id;
+            $userSubscription->amount    =  $subscriptionPlan->amount;
+            $userSubscription->type   =  strtolower(str_replace(' ', '-', $subscriptionPlan->type));
+            $userSubscription->status    =  'inactive';
+            $userSubscription->payment_status = 'unpaid';
+            $userSubscription->start_date = null;
+            $userSubscription->end_date = null;
+
+            if ($userSubscription->save()) {
+                return $this->success('Subscription upgraded successfully.', $userSubscription);
+            }
+
+            return $this->validation('Subscription not upgraded successfully.', $user->subscription);
+        }
+
+        return $this->validation('Invalid Request to upgrade subscription.');
     }
 }

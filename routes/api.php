@@ -3,13 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\APIs\v1\AuthController;
-use App\Http\Controllers\APIs\v1\MoviesController;
-use App\Http\Controllers\APIs\v1\ShowsController;
-use App\Http\Controllers\APIs\v1\EventsController;
 use App\Http\Controllers\APIs\v1\UserController;
 use App\Http\Controllers\APIs\v1\SettingsController;
-use App\Http\Controllers\APIs\v1\EntertainmentController;
-use App\Http\Controllers\APIs\EntertainmentMasterDataController;
 use App\Http\Controllers\APIs\CASubscriptionsController;
 
 /*
@@ -50,6 +45,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('subscriptions')->group(function () {
             Route::post('/create', [CASubscriptionsController::class, 'createSubscriptions']);
+            Route::post('/update', [CASubscriptionsController::class, 'updateSubscriptions']);
         });
 
         Route::get('user/details', [AuthController::class, 'getUserDetails']);
