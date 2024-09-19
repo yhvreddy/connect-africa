@@ -31,24 +31,57 @@ class UserRegisterUpdateRequest extends FormRequest
             'name'      =>  'required',
             'mobile'    =>  'required',
             'email' => [
-                        'sometimes',
-                        'email',
-                        Rule::unique('users')->ignore($this->user->id, 'id', 'App\Models\User')
-                    ],
-            // 'password' => 'sometimes|alpha_num_symbols'
+                'sometimes',
+                'email',
+                Rule::unique('users')->ignore($this->user->id, 'id', 'App\Models\User')
+            ],
+            'subscription_id' => [
+                'required',
+                'integer',
+                'exists:subscriptions,id'
+            ],
+            'subscription_type_id' => [
+                'required',
+                'integer',
+                'exists:subscriptions_types,id'
+            ],
+            'subscription_plan_id' => [
+                'required',
+                'integer',
+                'exists:subscriptions_plans,id'
+            ],
+            'subscription_payment_id' => [
+                'required',
+                'integer',
+                'exists:subscriptions_payment_methods,id'
+            ]
         ];
     }
 
-    public function messages(){
+    public function messages()
+    {
         return [
             'alpha_spaces' => ':attribute may only contain letters and spaces.',
             'username' => ':attribute already exists.',
             'alpha_num_symbols' => ':attribute contains special characters like only !#@%$.',
+            'subscription_id.required' => 'The subscription ID is required.',
+            'subscription_id.integer' => 'The subscription ID must be an integer.',
+            'subscription_id.exists' => 'The subscription ID does not exist in the subscriptions table.',
+            'subscription_type_id.required' => 'The subscription type ID is required.',
+            'subscription_type_id.integer' => 'The subscription type ID must be an integer.',
+            'subscription_type_id.exists' => 'The subscription type ID does not exist in the subscriptions_types table.',
+            'subscription_plan_id.required' => 'The subscription plan ID is required.',
+            'subscription_plan_id.integer' => 'The subscription plan ID must be an integer.',
+            'subscription_plan_id.exists' => 'The subscription plan ID does not exist in the subscriptions_plans table.',
+            'subscription_payment_id.required' => 'The subscription payment ID is required.',
+            'subscription_payment_id.integer' => 'The subscription payment ID must be an integer.',
+            'subscription_payment_id.exists' => 'The subscription payment ID does not exist in the subscriptions_payments table.',
         ];
     }
 
     // Customize the validation failure behavior
-    protected function failedValidation(Validator $validator){
+    protected function failedValidation(Validator $validator)
+    {
         if ($this->wantsJson()) {
             throw new HttpResponseException(
                 $this->validation('Validation error', $validator->errors())
@@ -67,10 +100,10 @@ class UserRegisterUpdateRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if($this->password == null){
+        if ($this->password == null) {
             $this->request->remove('password');
         }
-        if($this->email == null){
+        if ($this->email == null) {
             $this->request->remove('email');
         }
     }

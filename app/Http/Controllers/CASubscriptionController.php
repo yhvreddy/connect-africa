@@ -11,9 +11,12 @@ use App\Models\PaymentMethods;
 use App\Models\SubscriptionPaymentMethod;
 use App\Http\Requests\CASubscriptions\UpdateRequest;
 use Carbon\Carbon;
+use App\Http\Traits\TruFlix as ConnectAfrica;
 
 class CASubscriptionController extends Controller
 {
+    use ConnectAfrica;
+
     protected UserSubscriptions $userSubscription;
     protected Subscription $subscriptions;
     protected SubscriptionTypes $subscriptionTypes;
@@ -134,43 +137,9 @@ class CASubscriptionController extends Controller
     public function updateSubscription(UserSubscriptions $subscription, UpdateRequest $request)
     {
         try {
-            $subscriptionPlan = $this->subscriptionPlans->find($request->subscription_plan_id);
 
-            $subscription->user_id   =  $request->user_id;
-            $subscription->subscription_id   =  $request->subscription_id;
-            $subscription->subscription_type_id   =  $request->subscription_type_id;
-            $subscription->subscription_plan_id   = $request->subscription_plan_id;
-            $subscription->subscription_payment_id   =  $request->subscription_payment_id;
-            $subscription->amount    =  $subscriptionPlan->amount;
-            $subscription->type    =  strtolower(str_replace(' ', '-', $subscriptionPlan->type));
-
-            // Set start and end dates
-            $startDate = Carbon::now();
-            $endDate = null;
-
-            switch ($subscription->type) {
-                case 'yearly':
-                    $endDate = $startDate->copy()->addYear();
-                    break;
-                case 'monthly':
-                    $endDate = $startDate->copy()->addMonth();
-                    break;
-                case 'lifetime':
-                    $endDate = null; // No end date for lifetime subscriptions
-                    break;
-            }
-
-            $subscription->status  =  ($request->payment_status == 'paid') ? 'active' : 'inactive';
-            $subscription->payment_status    = $request->payment_status;
-
-            $subscription->start_date = ($subscription->status == 'active') ? date('Y-m-d', strtotime($startDate)) : null;
-            if ($endDate) {
-                $subscription->end_date = ($subscription->status == 'active') ? date('Y-m-d', strtotime($endDate)) : null;
-            } else {
-                $subscription->end_date = null; // No end date for lifetime subscriptions
-            }
-
-            if ($subscription->save()) {
+            $response = $this->updateSubscriptionData($request, $subscription);
+            if ($response) {
                 return redirect()->route('admin.subscription.list')->with('success', 'Subscription details updated successfully.');
             }
 
