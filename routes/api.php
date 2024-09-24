@@ -6,7 +6,7 @@ use App\Http\Controllers\APIs\v1\AuthController;
 use App\Http\Controllers\APIs\v1\UserController;
 use App\Http\Controllers\APIs\v1\SettingsController;
 use App\Http\Controllers\APIs\CASubscriptionsController;
-
+use App\Http\Controllers\ProxyController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -40,6 +40,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/payment-methods/{subscription}', [CASubscriptionsController::class, 'paymentMethodsBySubscription']);
     });
 
+
+    Route::get('/proxy', [ProxyController::class, 'proxy']);
 
     Route::middleware(['auth:sanctum'])->group(function () {
 

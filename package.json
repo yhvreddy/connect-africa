@@ -11,5 +11,8 @@
         "postcss": "^8.1.14",
         "sass": "^1.57.1",
         "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "puppeteer": "^23.4.0"
     }
 }
