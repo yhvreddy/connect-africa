@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Interfaces\UserSubscriptionsRepositoryInterface as UserSubscriptionsContract;
+use Carbon\Carbon;
 
 class UserSubscriptions extends Model implements UserSubscriptionsContract
 {
@@ -91,5 +92,19 @@ class UserSubscriptions extends Model implements UserSubscriptionsContract
     public function subscriptionPaymentMethod()
     {
         return $this->belongsTo(SubscriptionPaymentMethod::class, 'subscription_payment_id');
+    }
+
+
+    public function isActive()
+    {
+        $currentDate = Carbon::now();
+
+        // Check payment status
+        if ($this->payment_status !== 'paid') {
+            return false; // Inactive
+        }
+
+        // Check date range
+        return $currentDate->between($this->start_date, $this->end_date);
     }
 }

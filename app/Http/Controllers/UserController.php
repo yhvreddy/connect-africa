@@ -202,6 +202,7 @@ class UserController extends Controller
 
             return redirect()->back()->with('failed', $response->message);
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             return redirect()->back()->with('error', $th->getMessage());
         }
     }

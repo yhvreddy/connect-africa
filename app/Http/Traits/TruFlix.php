@@ -247,7 +247,7 @@ trait TruFlix
     {
         $subscriptionPlan = $this->subscriptionPlans->find($request->subscription_plan_id);
 
-        $subscription->user_id   =  $request->user_id;
+        $subscription->user_id   =  $subscription->user_id;
         $subscription->subscription_id   =  $request->subscription_id;
         $subscription->subscription_type_id   =  $request->subscription_type_id;
         $subscription->subscription_plan_id   = $request->subscription_plan_id;
