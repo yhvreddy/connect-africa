@@ -21,11 +21,14 @@ class UserResource extends JsonResource
             'username' => $this->username,
             'mobile' => $this->mobile,
             'access_code' => $this->access_code,
+            'disability_type' => $this->disability_type ?? '',
             'created_at' => date('M d, Y', strtotime($this->created_at)),
-            'otp' => base64_encode($this->otp).'!#!'.$this->otp
+            'otp' => base64_encode($this->otp) . '!#!' . $this->otp,
+            'country'   =>  $this->country?->name ?? null,
+            'country_id'    =>  $this->country_id,
         ];
 
-        if(!isset($this->accessToken)){
+        if (!isset($this->accessToken)) {
             $data['token'] = [
                 'current_token' => request()->bearerToken(),
                 'token_type' => 'Bearer',
@@ -33,7 +36,7 @@ class UserResource extends JsonResource
             ];
         }
 
-        if(isset($this->accessToken)){
+        if (isset($this->accessToken)) {
             $data['accessToken'] = $this->accessToken;
             $data['token_type'] = $this->token_type;
         }
