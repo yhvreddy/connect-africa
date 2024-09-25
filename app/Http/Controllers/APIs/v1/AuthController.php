@@ -152,6 +152,7 @@ class AuthController extends Controller
 
             return $this->validation('Sorry, Invalid Request To Create Account.');
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             return $this->internalServer('Something wrong', $th->getMessage());
         }
     }

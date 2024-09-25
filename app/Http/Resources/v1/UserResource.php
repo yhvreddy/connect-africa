@@ -15,10 +15,9 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
         $subscription = $this->subscription;
         $subscriptionData = [];
-        if ($subscription && $subscription->isActive()) {
+        if ($subscription) {
             $subscriptionData = [
                 'start_date'    =>  $subscription->start_date,
                 'end_date'  =>  $subscription->end_date,
@@ -39,7 +38,7 @@ class UserResource extends JsonResource
             'otp' => base64_encode($this->otp) . '!#!' . $this->otp,
             'country'   =>  $this->country?->name ?? null,
             'country_id'    =>  $this->country_id,
-            'subscription_status' => $subscription->isActive() ?? false,
+            'subscription_status' => $subscription?->isActive() ?? false,
         ];
 
         if (!isset($this->accessToken)) {
