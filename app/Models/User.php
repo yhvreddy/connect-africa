@@ -39,7 +39,8 @@ class User extends Authenticatable implements UserContract
         'location_availability',
         'referring_members',
         'share_amount',
-        'user_caps'
+        'user_caps',
+        'disability_type'
     ];
 
     /**

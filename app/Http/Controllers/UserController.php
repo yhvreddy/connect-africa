@@ -23,6 +23,7 @@ use App\Models\SubscriptionPaymentMethod;
 use App\Http\Requests\CASubscriptions\UpdateRequest;
 
 
+
 class UserController extends Controller
 {
     use HttpResponses, TruFlix;
@@ -151,8 +152,8 @@ class UserController extends Controller
         $paymentMethods = $this->subscriptionPaymentMethods
             ->with('paymentMethod')
             ->where('subscription_id', $subscription?->subscription_id)->get();
-
-        return view('zq.user.edit', compact('user', 'subscription', 'subscriptions', 'paymentMethods', 'subscriptionPlans', 'subscriptionTypes'));
+        $countries = $this->countryRepository->select('id', 'name')->get();
+        return view('zq.user.edit', compact('user', 'subscription', 'subscriptions', 'paymentMethods', 'subscriptionPlans', 'subscriptionTypes', 'countries'));
     }
 
     /**
@@ -201,7 +202,6 @@ class UserController extends Controller
 
             return redirect()->back()->with('failed', $response->message);
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             return redirect()->back()->with('error', $th->getMessage());
         }
     }

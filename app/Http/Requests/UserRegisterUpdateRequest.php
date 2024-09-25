@@ -35,6 +35,8 @@ class UserRegisterUpdateRequest extends FormRequest
                 'email',
                 Rule::unique('users')->ignore($this->user->id, 'id', 'App\Models\User')
             ],
+            'disability_type'   => 'string',
+            'country_id'   => 'integer',
             'subscription_id' => [
                 'required',
                 'integer',

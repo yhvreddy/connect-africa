@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests\LoginUserRequest;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Support\Facades\Log;
@@ -37,7 +36,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function loginAccess(LoginUserRequest $request)
+    public function loginAccess(Request $request)
     {
         try {
             $role = $this->role->where('slug', $request->role)->whereNotIn('slug', ['user', 'affiliate'])->first();

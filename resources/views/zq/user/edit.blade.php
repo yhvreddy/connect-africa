@@ -62,6 +62,29 @@
                                     @endif
                                 </div>
 
+                                <div class="col-md-4">
+                                    <label class="form-label" for="disability_type">Disability Type</label>
+                                    <input class="form-control" id="disability_type" type="text" name="disability_type"
+                                        required="" value="{{ old('disability_type') ?? $user->disability_type }}" />
+                                    @if ($errors->has('disability_type'))
+                                        <span class="text-danger">{{ $errors->first('disability_type') }}</span>
+                                    @endif
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label" for="country_id">Selecte Country</label>
+                                    <select class="form-control" id="country_id" name="country_id" required="">
+                                        @foreach ($countries as $country)
+                                            <option value="{{ $country->id }}"
+                                                {{ old('country_id', $user->country_id ?? '') == $country->id ? 'seelcted' : '' }}>
+                                                {{ $country->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @if ($errors->has('country_id'))
+                                        <span class="text-danger">{{ $errors->first('country_id') }}</span>
+                                    @endif
+                                </div>
+
                                 <input type="hidden" name="username" value="{{ $user->email }}" />
 
                                 <div class="col-md-4">
