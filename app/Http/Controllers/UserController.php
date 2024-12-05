@@ -14,24 +14,51 @@ use App\Http\Traits\TruFlix;
 use App\Repositories\UserRepository;
 use App\Repositories\CountriesRepository;
 use Illuminate\Support\Carbon;
+use App\Models\UserSubscriptions;
+use App\Models\Subscription;
+use App\Models\SubscriptionTypes;
+use App\Models\SubscriptionPlans;
+use App\Models\PaymentMethods;
+use App\Models\SubscriptionPaymentMethod;
+use App\Http\Requests\CASubscriptions\UpdateRequest;
+
 
 
 class UserController extends Controller
 {
     use HttpResponses, TruFlix;
 
-    protected $user;
-    protected $userRepository;
-    protected $countryRepository;
+    protected User $user;
+    protected UserRepository $userRepository;
+    protected CountriesRepository $countryRepository;
+    protected UserSubscriptions $userSubscription;
+    protected Subscription $subscriptions;
+    protected SubscriptionTypes $subscriptionTypes;
+    protected SubscriptionPlans $subscriptionPlans;
+    protected PaymentMethods $paymentMethods;
+    protected SubscriptionPaymentMethod $subscriptionPaymentMethods;
+
 
     public function __construct(
         User $_user,
         UserRepository $userRepository,
-        CountriesRepository $countryRepository
+        CountriesRepository $countryRepository,
+        UserSubscriptions $_userSubscriptions,
+        Subscription $_subscriptions,
+        SubscriptionTypes $_subscriptionTypes,
+        SubscriptionPlans $_subscriptionPlans,
+        PaymentMethods $_paymentMethods,
+        SubscriptionPaymentMethod $_subscriptionPaymentMethods,
     ) {
         $this->user = $_user;
         $this->userRepository = $userRepository;
         $this->countryRepository = $countryRepository;
+        $this->userSubscription = $_userSubscriptions;
+        $this->subscriptions = $_subscriptions;
+        $this->subscriptionTypes = $_subscriptionTypes;
+        $this->subscriptionPlans = $_subscriptionPlans;
+        $this->paymentMethods = $_paymentMethods;
+        $this->subscriptionPaymentMethods = $_subscriptionPaymentMethods;
     }
 
     /**
@@ -44,19 +71,18 @@ class UserController extends Controller
         $users = $this->userRepository->where('role_id', 4)->get();
 
         $newRecords = $this->userRepository
-                        ->where('is_active', 1)
-                        ->where('role_id', 4)
-                        ->whereMonth('created_at', Carbon::now()->month)
-                        ->get();
+            ->where('is_active', 1)
+            ->where('role_id', 4)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->get();
 
         $deactivatedRecords = $this->userRepository
-                                ->where('role_id', 4)
-                                ->where('is_active', 0)
-                                ->whereBetween('created_at', [$startDate, $endDate])
-                                ->get();
+            ->where('role_id', 4)
+            ->where('is_active', 0)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
         $countries = $this->countryRepository->orderBy('name', 'asc')->get();
-        return view('admin.user.list', compact('users','startDate','newRecords','deactivatedRecords','countries'));
-
+        return view('admin.user.list', compact('users', 'startDate', 'newRecords', 'deactivatedRecords', 'countries'));
     }
 
     /**
@@ -64,7 +90,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.user.add');
+        $subscriptions = $this->subscriptions->get();
+        return view('admin.user.add', compact('subscriptions'));
     }
 
     /**
@@ -76,9 +103,9 @@ class UserController extends Controller
             $response = DB::transaction(function () use ($request) {
                 $data = $request->all();
                 $newData = [];
-                if(!empty($data['password']) && isset($data['password'])){
+                if (!empty($data['password']) && isset($data['password'])) {
                     $newData['password'] = Hash::make($data['password']);
-                }else{
+                } else {
                     $newData['password'] = Hash::make('admin@123!');
                 }
                 $newData['role_id'] = 4;
@@ -86,7 +113,7 @@ class UserController extends Controller
 
                 $data = array_merge($data, $newData);
                 $user = $this->userRepository->create($data);
-                if($user->save()) {
+                if ($user->save()) {
                     return $this->success('User details saved successfully.', $user);
                 }
 
@@ -94,12 +121,11 @@ class UserController extends Controller
             });
 
             $response = $response->getData();
-            if($response->status){
+            if ($response->status) {
                 return redirect()->route('admin.users.index')->with('success', $response->message);
             }
 
             return redirect()->back()->with('failed', $response->message);
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
@@ -118,7 +144,16 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return view('zq.user.edit', compact('user'));
+        $subscription = $user->subscription;
+        $subscriptions = $this->subscriptions->get();
+        $subscriptionTypes = $this->subscriptionTypes->with('subscription')
+            ->where('subscription_id', $subscription?->subscription_id)->get();
+        $subscriptionPlans = $this->subscriptionPlans->with('subscriptionType')->where('subscription_type_id', $subscription?->subscription_type_id)->get();
+        $paymentMethods = $this->subscriptionPaymentMethods
+            ->with('paymentMethod')
+            ->where('subscription_id', $subscription?->subscription_id)->get();
+        $countries = $this->countryRepository->select('id', 'name')->get();
+        return view('zq.user.edit', compact('user', 'subscription', 'subscriptions', 'paymentMethods', 'subscriptionPlans', 'subscriptionTypes', 'countries'));
     }
 
     /**
@@ -128,23 +163,32 @@ class UserController extends Controller
     {
         try {
             $response = DB::transaction(function () use ($request, $user) {
-                if($user->email !== $request->email){
+                if ($user->email !== $request->email) {
                     $checkEmail = $this->userRepository->where('email', $request->email)->where('id', '!=', $user->id)->get()->count();
-                    if($checkEmail){
+                    if ($checkEmail) {
                         return $this->validation('Email is already exists.');
                     }
                 }
 
                 $data = $request->all();
                 $newData = [];
-                if(!empty($data['password']) && isset($data['password'])){
+                if (!empty($data['password']) && isset($data['password'])) {
                     $newData['password'] = Hash::make($data['password']);
-                }else{
+                } else {
                     unset($data['password']);
                 }
 
                 $data = array_merge($data, $newData);
                 if ($user->update($data)) {
+
+                    $subscription = $user->subscription;
+                    if ($subscription) {
+                        $this->updateSubscriptionData($request, $subscription);
+                    } else {
+                        $subscriptionPlan = $this->subscriptionPlans->find($request->subscription_plan_id);
+                        $this->createSubscriptionData($request, $user, $subscriptionPlan, $this->userSubscription);
+                    }
+
                     return $this->success('User details updated successfully.', $user);
                 }
 
@@ -152,13 +196,13 @@ class UserController extends Controller
             });
 
             $response = $response->getData();
-            if($response->status){
+            if ($response->status) {
                 return redirect()->route('admin.users.index')->with('success', $response->message);
             }
 
             return redirect()->back()->with('failed', $response->message);
-
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
@@ -179,6 +223,10 @@ class UserController extends Controller
     {
         try {
             $response = DB::transaction(function () use ($user) {
+                if (isset($user->subscription)) {
+                    $user->subscription->delete();
+                }
+
                 if ($user->forceDelete()) {
                     return $this->success('User deleted successfully.');
                 }
@@ -187,12 +235,11 @@ class UserController extends Controller
             });
 
             $response = $response->getData();
-            if($response->status){
+            if ($response->status) {
                 return redirect()->route('admin.users.index')->with('success', $response->message);
             }
 
             return redirect()->back()->with('failed', $response->message);
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
@@ -201,7 +248,8 @@ class UserController extends Controller
     /**
      * User Details Page
      */
-    public function userDetails(Request $request, User $user){
+    public function userDetails(Request $request, User $user)
+    {
         $referredUsers = $user->referredUsers;
         return view('default.users.view', compact('user', 'referredUsers'));
     }
@@ -239,11 +287,11 @@ class UserController extends Controller
             }
 
             if (!empty($data['search'])) {
-                $users->where(function($query) use ($data) {
+                $users->where(function ($query) use ($data) {
                     $query->where('role_id', 'like', '%' . $data['search'] . '%')
-                          ->orWhere('email', 'like', '%' . $data['search'] . '%')
-                          ->orWhere('name', 'like', '%' . $data['search'] . '%')
-                          ->orWhere('username', 'like', '%' . $data['search'] . '%');
+                        ->orWhere('email', 'like', '%' . $data['search'] . '%')
+                        ->orWhere('name', 'like', '%' . $data['search'] . '%')
+                        ->orWhere('username', 'like', '%' . $data['search'] . '%');
                 });
             }
 
@@ -292,13 +340,13 @@ class UserController extends Controller
             $user->sno  = $key + 1;
             $user->actions = '<ul class="action align-center">
                                 <li class="edit">
-                                    <a href="'.route('admin.users.edit', ['user' => $user->id]).'" data-toggle="tooltip" data-placement="top" title="Edit">
+                                    <a href="' . route('admin.users.edit', ['user' => $user->id]) . '" data-toggle="tooltip" data-placement="top" title="Edit">
                                      <i class="icon-pencil-alt"></i>
                                     </a>
                                 </li>
 
                                 <li class="delete">
-                                    <a href="'.route('admin.users.soft-delete', ['user' => $user->id]).'" onclick=" return confirm(\'Are you sure to delete user?\');" data-toggle="tooltip" data-placement="top" title="Delete">
+                                    <a href="' . route('admin.users.soft-delete', ['user' => $user->id]) . '" onclick=" return confirm(\'Are you sure to delete user?\');" data-toggle="tooltip" data-placement="top" title="Delete">
                                         <i class="icon-trash"></i>
                                     </a>
                                 </li>
@@ -312,7 +360,7 @@ class UserController extends Controller
             //     </a>
             // </li>
 
-            $user->is_active   = $user->is_active === 1?'Active':'Deactivate';
+            $user->is_active   = $user->is_active === 1 ? 'Active' : 'Deactivate';
             $user->created_date = date('M d, Y', strtotime($user->created_at));
             $user->name  = $user?->name ?? '';
         }
@@ -342,5 +390,4 @@ class UserController extends Controller
         $user->save();
         return response()->json(['message' => 'User status updated successfully.'], 200);
     }
-
 }

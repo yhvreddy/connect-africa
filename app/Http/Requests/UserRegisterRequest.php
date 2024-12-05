@@ -32,16 +32,20 @@ class UserRegisterRequest extends FormRequest
             'step'      =>  'required|string|in:mobile,otp,pin',
             'mobile'    =>  'integer',
             'otp'       =>  'integer',
-            'pin'       =>  'integer'
+            'pin'       =>  'integer',
+            'disability_type'   => 'string',
+            'country'   => 'string',
         ];
     }
 
-    public function messages(){
+    public function messages()
+    {
         return [];
     }
 
     // Customize the validation failure behavior
-    protected function failedValidation(Validator $validator){
+    protected function failedValidation(Validator $validator)
+    {
         if ($this->wantsJson()) {
             throw new HttpResponseException(
                 $this->validation('Validation error', $validator->errors())

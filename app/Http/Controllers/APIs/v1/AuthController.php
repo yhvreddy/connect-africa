@@ -43,42 +43,43 @@ class AuthController extends Controller
     }
 
     //Auth User
-    public function login(AuthLoginRequest $request){
+    public function login(AuthLoginRequest $request)
+    {
         try {
-            if(!$request->wantsJson()){
+            if (!$request->wantsJson()) {
                 return $this->validation('Invalid data format, Its allow only json request.');
             }
 
-            if(!Auth::attempt(['mobile' => $request->mobile, 'password' => $request->pin, 'role_id' => 4])) {
+            if (!Auth::attempt(['mobile' => $request->mobile, 'password' => $request->pin, 'role_id' => 4])) {
                 return $this->validation('Invalid credentials.');
             }
 
             $user = $request->user();
-            $tokenResult = $user->createToken('PersonalAccessToken_'.$user->id);
+            $tokenResult = $user->createToken('PersonalAccessToken_' . $user->id);
             $user->accessToken = $tokenResult->plainTextToken;
             $user->token_type = 'Bearer';
             $user->send_password = false;
             $user = new UserResource($user);
             return $this->success('Login Success', $user);
-
         } catch (\Throwable $th) {
             return $this->internalServer('Something wrong', $th->getMessage());
         }
     }
 
-    public function registerNewUser(UserRegisterRequest $request){
+    public function registerNewUser(UserRegisterRequest $request)
+    {
         try {
-            if(!$request->wantsJson()){
+            if (!$request->wantsJson()) {
                 return $this->validation('Invalid data format, Its allow only json request.');
             }
 
-            if(!isset($request->mobile) && !is_numeric($request->mobile)){
+            if (!isset($request->mobile) && !is_numeric($request->mobile)) {
                 return $this->validation('Mobile Number Required.');
             }
 
-            if((isset($request->mobile) && is_numeric($request->mobile)) && $request->step == 'mobile'){
+            if ((isset($request->mobile) && is_numeric($request->mobile)) && $request->step == 'mobile') {
                 $users = $this->user->where('mobile', $request->mobile)->get();
-                if($users->count()){
+                if ($users->count()) {
                     return $this->validation('Mobile Number Already Exists.');
                 }
 
@@ -87,8 +88,25 @@ class AuthController extends Controller
                     'username'  =>  $request->mobile,
                     'mobile'    =>  $request->mobile,
                     'otp'       =>  $otp,
-                    'role_id'   =>  4
+                    'role_id'   =>  4,
+                    'disability_type'   =>  $request->disability_type,
                 ]);
+                if ($user) {
+                    $country = null;
+                    if (isset($request->country) && !empty($request->country)) {
+                        $country = $this->country->where('name', $request->country)->first();
+                        if (!$country) {
+                            $country = $this->country->create([
+                                'name' => $request->country,
+                            ]);
+                        }
+                    }
+
+                    if ($country) {
+                        $user->country_id = $country->id;
+                        $user->save();
+                    }
+                }
 
                 //Todo:: Store OTP In DB and Send OTP Message
                 $data = ['otp' => $user->otp];
@@ -102,7 +120,7 @@ class AuthController extends Controller
 
             if ((isset($request->otp) && is_numeric($request->otp)) && $request->step == 'otp') {
                 //TODO:: Verify OTP with Request OTP
-                if($user->otp != $request->otp){
+                if ($user->otp != $request->otp) {
                     return $this->validation('Invalid OTP.');
                 }
 
@@ -113,7 +131,7 @@ class AuthController extends Controller
             }
 
             if ((isset($request->pin) && is_numeric($request->pin)) && $request->step == 'pin') {
-                if(!isset($request->pin) && !is_numeric($request->pin)){
+                if (!isset($request->pin) && !is_numeric($request->pin)) {
                     return $this->validation('PIN Required.');
                 }
 
@@ -121,9 +139,9 @@ class AuthController extends Controller
                 $user->access_code  =   $request->pin;
                 $user->save();
 
-                if(Auth::loginUsingId($user->id)){
+                if (Auth::loginUsingId($user->id)) {
                     $user = $request->user();
-                    $tokenResult = $user->createToken('PersonalAccessToken_'.$user->id);
+                    $tokenResult = $user->createToken('PersonalAccessToken_' . $user->id);
                     $user->accessToken = $tokenResult->plainTextToken;
                     $user->token_type = 'Bearer';
                     $user = new UserResource($user);
@@ -133,19 +151,20 @@ class AuthController extends Controller
             }
 
             return $this->validation('Sorry, Invalid Request To Create Account.');
-
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             return $this->internalServer('Something wrong', $th->getMessage());
         }
     }
 
-    public function forgetPin(ForgetPinRequest $request){
+    public function forgetPin(Request $request)
+    {
         try {
-            if(!$request->wantsJson()){
+            if (!$request->wantsJson()) {
                 return $this->validation('Invalid data format, Its allow only json request.');
             }
 
-            if(!isset($request->mobile) && !is_numeric($request->mobile)){
+            if (!isset($request->mobile) && !is_numeric($request->mobile)) {
                 return $this->validation('Mobile Number Required.');
             }
 
@@ -154,7 +173,7 @@ class AuthController extends Controller
                 return $this->validation('No Account Found.');
             }
 
-            if($user && (isset($request->mobile) && is_numeric($request->mobile)) && $request->step == 'mobile'){
+            if ($user && (isset($request->mobile) && is_numeric($request->mobile)) && $request->step == 'mobile') {
 
                 $otp = 123456; //rand(111111, 999999);
                 $user->otp =  $otp;
@@ -169,7 +188,7 @@ class AuthController extends Controller
 
             if ($user && (isset($request->otp) && is_numeric($request->otp)) && $request->step == 'otp') {
                 //TODO:: Verify OTP with Request OTP
-                if($user->otp != $request->otp){
+                if ($user->otp != $request->otp) {
                     return $this->validation('Invalid OTP.');
                 }
 
@@ -180,7 +199,7 @@ class AuthController extends Controller
             }
 
             if ($user && (isset($request->pin) && is_numeric($request->pin)) && $request->step == 'pin') {
-                if(!isset($request->pin) && !is_numeric($request->pin)){
+                if (!isset($request->pin) && !is_numeric($request->pin)) {
                     return $this->validation('PIN Required.');
                 }
 
@@ -188,9 +207,9 @@ class AuthController extends Controller
                 $user->access_code  =   $request->pin;
                 $user->save();
 
-                if(Auth::loginUsingId($user->id)){
+                if (Auth::loginUsingId($user->id)) {
                     $user = $request->user();
-                    $tokenResult = $user->createToken('PersonalAccessToken_'.$user->id);
+                    $tokenResult = $user->createToken('PersonalAccessToken_' . $user->id);
                     $user->accessToken = $tokenResult->plainTextToken;
                     $user->token_type = 'Bearer';
                     $user = new UserResource($user);
@@ -200,28 +219,29 @@ class AuthController extends Controller
             }
 
             return $this->validation('Sorry, Invalid Request To Update PIn.');
-
         } catch (\Throwable $th) {
             return $this->internalServer('Something wrong', $th->getMessage());
         }
     }
 
-    public function getUserDetails(Request $request){
+    public function getUserDetails(Request $request)
+    {
         $user = $request->user();
-        if($user){
+        if ($user) {
             return $this->success('User Details', new UserResource($user));
         }
 
         return $this->unauthorized('Invalid User Request or Unauthorized Access.');
     }
 
-    public function updateUserPin(UserUpdatePinRequest $request){
-        if(!$request->wantsJson()){
+    public function updateUserPin(UserUpdatePinRequest $request)
+    {
+        if (!$request->wantsJson()) {
             return $this->validation('Invalid request format.');
         }
 
         $user = $request->user();
-        if(!$user){
+        if (!$user) {
             return $this->validation('Unauthenticated User Access.');
         }
 
@@ -230,7 +250,7 @@ class AuthController extends Controller
 
                 $data = $request->all();
 
-                if($request->password !== $request->confirm_password){
+                if ($request->password !== $request->confirm_password) {
                     return $this->validation('Sorry, Password and confirm password not matching.');
                 }
 
@@ -246,7 +266,6 @@ class AuthController extends Controller
             });
 
             return $response;
-
         } catch (\Throwable $th) {
             return $this->validation($th->getMessage());
         }
@@ -255,7 +274,7 @@ class AuthController extends Controller
     public function updateUserDetails(UserUpdateRequest $request)
     {
         try {
-            if(!$request->wantsJson()){
+            if (!$request->wantsJson()) {
                 return $this->validation('Invalid data format, Its allow only json request.');
             }
 
@@ -264,28 +283,28 @@ class AuthController extends Controller
                 return $this->validation('Invalid Request To Update Details.');
             }
 
-            if(isset($request->password) && !is_numeric($request->password)){
+            if (isset($request->password) && !is_numeric($request->password)) {
                 return $this->validation('Invalid Pin Number Format.');
             }
 
             $checkMobile = $this->user->where('mobile', $request->mobile)->where('id', '!=', $user->id)->get();
-            if($checkMobile->count()){
+            if ($checkMobile->count()) {
                 return $this->validation('Sorry, Mobile Number Already Exists.');
             }
 
-            if($user){
+            if ($user) {
 
                 $country = null;
-                if(isset($request->country) && !empty($request->country)){
+                if (isset($request->country) && !empty($request->country)) {
                     $country = $this->country->where('name', $request->country)->first();
-                    if(!$country){
+                    if (!$country) {
                         $country = $this->country->create([
                             'name' => $request->country,
                         ]);
                     }
                 }
 
-                if($country){
+                if ($country) {
                     $user->country_id = $country->id;
                 }
 
@@ -300,14 +319,14 @@ class AuthController extends Controller
             }
 
             return $this->validation('Sorry, Failed To Update Details.');
-
         } catch (\Throwable $th) {
             return $this->internalServer('Something wrong', $th->getMessage());
         }
     }
 
-    public function verifyUserToken(VerifyUserTokenRequest $request){
-        try{
+    public function verifyUserToken(VerifyUserTokenRequest $request)
+    {
+        try {
             $authorizationHeader = $request->token;
             if (!$authorizationHeader) {
                 return $this->validation('Authorization token not found');
@@ -340,14 +359,14 @@ class AuthController extends Controller
             }
 
             return $this->validation('Wrong token or token expired.');
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return $this->internalServer($e->getMessage());
         }
     }
 
-    public function logOutUser(Request $request){
-        if($request->user()){
+    public function logOutUser(Request $request)
+    {
+        if ($request->user()) {
             $request->user()->tokens()->delete();
             return $this->success('User logged out successfully.');
         }

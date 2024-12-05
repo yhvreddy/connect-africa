@@ -14,10 +14,7 @@ use App\Http\Traits\HttpResponses;
 use App\Http\Traits\TruFlix;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Carbon;
-use App\Repositories\EntertainmentRepository;
-use App\Repositories\EntertainmentAdditionalRepository;
-use App\Repositories\EntertainmentMasterRepository;
-use App\Repositories\CategoriesRepository;
+
 class AdminController extends Controller
 {
 
@@ -25,25 +22,13 @@ class AdminController extends Controller
 
     protected $user;
     protected $userRepository;
-    protected $entertainment;
-    protected $categoryRepository;
-    protected $entertainmentRepository;
-    protected $entertainmentAdditionalRepository;
 
     public function __construct(
         User $_user,
-        UserRepository $userRepository,
-        EntertainmentRepository $_entertainment,
-        CategoriesRepository $_categoryRepository,
-        EntertainmentRepository $_entertainmentRepository,
-        EntertainmentAdditionalRepository $_entertainmentAdditionalRepository
+        UserRepository $userRepository
     ) {
         $this->user = $_user;
         $this->userRepository = $userRepository;
-        $this->entertainment = $_entertainment;
-        $this->categoryRepository = $_categoryRepository;
-        $this->entertainmentRepository = $_entertainmentRepository;
-        $this->entertainmentAdditionalRepository = $_entertainmentAdditionalRepository;
     }
 
     /**
@@ -55,14 +40,13 @@ class AdminController extends Controller
         $endDate = Carbon::now()->endOfMonth();
         $users = $this->userRepository->where('role_id', 2)->get();
         $newRecords = $this->userRepository->where('role_id', 2)
-        ->where('created_at', '>=', $startDate)->get();
+            ->where('created_at', '>=', $startDate)->get();
         $deactivatedRecords = $this->userRepository
-        ->where('role_id', 2)
-        ->where('is_active', 0)
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->get();
-        return view('zq.admin.list', compact('users','startDate','newRecords','deactivatedRecords'));
-
+            ->where('role_id', 2)
+            ->where('is_active', 0)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+        return view('zq.admin.list', compact('users', 'startDate', 'newRecords', 'deactivatedRecords'));
     }
 
     /**
@@ -95,12 +79,11 @@ class AdminController extends Controller
             });
 
             $response = $response->getData();
-            if($response->status){
+            if ($response->status) {
                 return redirect()->route('zq.admins.index')->with('success', $response->message);
             }
 
             return redirect()->back()->with('failed', $response->message);
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
@@ -129,18 +112,18 @@ class AdminController extends Controller
     {
         try {
             $response = DB::transaction(function () use ($request, $admin) {
-                if($admin->email !== $request->email){
+                if ($admin->email !== $request->email) {
                     $checkEmail = $this->userRepository->where('email', $request->email)->where('id', '!=', $admin->id)->get()->count();
-                    if($checkEmail){
+                    if ($checkEmail) {
                         return $this->validation('Email is already exists.');
                     }
                 }
 
                 $data = $request->all();
                 $newData = [];
-                if(!empty($data['password']) && isset($data['password'])){
+                if (!empty($data['password']) && isset($data['password'])) {
                     $newData['password'] = Hash::make($data['password']);
-                }else{
+                } else {
                     unset($data['password']);
                 }
 
@@ -153,12 +136,11 @@ class AdminController extends Controller
             });
 
             $response = $response->getData();
-            if($response->status){
+            if ($response->status) {
                 return redirect()->route('zq.admins.index')->with('success', $response->message);
             }
 
             return redirect()->back()->with('failed', $response->message);
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
@@ -187,37 +169,38 @@ class AdminController extends Controller
             });
 
             $response = $response->getData();
-            if($response->status){
+            if ($response->status) {
                 return redirect()->route('zq.admins.index')->with('success', $response->message);
             }
 
             return redirect()->back()->with('failed', $response->message);
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
-    public function profileEdit(){
+    public function profileEdit()
+    {
         $user = app('truFlix')->getSessionUser();
         return view('admin.profile.index', compact('user'));
     }
 
-    public function profileUpdate(User $admin, ProfileAdminUpdateRequest $request){
+    public function profileUpdate(User $admin, ProfileAdminUpdateRequest $request)
+    {
         try {
             $response = DB::transaction(function () use ($request, $admin) {
-                if($admin->email !== $request->email){
+                if ($admin->email !== $request->email) {
                     $checkEmail = $this->user->where('email', $request->email)->where('id', '!=', $admin->id)->get()->count();
-                    if($checkEmail){
+                    if ($checkEmail) {
                         return $this->validation('Email is already exists.');
                     }
                 }
 
                 $data = $request->all();
                 $newData = [];
-                if(!empty($data['password']) && isset($data['password'])){
+                if (!empty($data['password']) && isset($data['password'])) {
                     $newData['password'] = Hash::make($data['password']);
-                }else{
+                } else {
                     unset($data['password']);
                 }
 
@@ -230,18 +213,18 @@ class AdminController extends Controller
             });
 
             $response = $response->getData();
-            if($response->status){
+            if ($response->status) {
                 return redirect()->back()->with('success', $response->message);
             }
 
             return redirect()->back()->with('failed', $response->message);
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
-    public function adminFetchDataListForAjax(Request $request){
+    public function adminFetchDataListForAjax(Request $request)
+    {
         //Defined Columns
         $columnArray = [
             'id',
@@ -259,72 +242,69 @@ class AdminController extends Controller
         $dir = $request->input('order.0.dir');
 
         $users = $this->userRepository->where('role_id', 2);
-        
+
 
         $totalData = count($users->get());
         $totalFiltered = $totalData;
 
         //Filter Data
-        if(!empty($data['search']) || !empty($data['duration']) || !empty($data['status'])){ //.... conduction's can add in this if clause
+        if (!empty($data['search']) || !empty($data['duration']) || !empty($data['status'])) { //.... conduction's can add in this if clause
 
-            if(!empty($data['search'])){
-                $users->where('role_id', 'Like', '%'.$data['search'].'%')
-                           ->orWhere('email', 'Like', '%'.$data['search'].'%')
-                           ->orWhere('name', 'Like', '%'.$data['search'].'%');
+            if (!empty($data['search'])) {
+                $users->where('role_id', 'Like', '%' . $data['search'] . '%')
+                    ->orWhere('email', 'Like', '%' . $data['search'] . '%')
+                    ->orWhere('name', 'Like', '%' . $data['search'] . '%');
             }
 
-        // Filter by user status (active or deactivated)
-        if (!empty($data['status'])) {
-            switch ($data['status']) {
-                case 'active':
-                    $users->where('is_active', 1);
-                    break;
-                case 'deactivated':
-                    $users->where('is_active', 0);
-                    break;
+            // Filter by user status (active or deactivated)
+            if (!empty($data['status'])) {
+                switch ($data['status']) {
+                    case 'active':
+                        $users->where('is_active', 1);
+                        break;
+                    case 'deactivated':
+                        $users->where('is_active', 0);
+                        break;
+                }
             }
-        }
 
 
             $totalFiltered = count($users->get());
         }
 
         $users = $users
-                        ->offset($start)
-                        ->limit($limit)
-                        ->orderBy($order, $dir)
-                        ->get();
+            ->offset($start)
+            ->limit($limit)
+            ->orderBy($order, $dir)
+            ->get();
 
         //Customize or add additional data in below loop
         $newUsers = [];
-        foreach($users as $key => $user){
+        foreach ($users as $key => $user) {
             $activateButton = $user->is_active ? 'Deactivate' : 'Activate';
             $activateAction = $user->is_active ? 'deactivate' : 'activate';
             $actions = '<ul class="action align-center">
                             <li class="edit">
-                                <a href="'.route('zq.admins.edit', ['admin' => $user->id]).'"> <i class="icon-pencil-alt"></i></a>
+                                <a href="' . route('zq.admins.edit', ['admin' => $user->id]) . '"> <i class="icon-pencil-alt"></i></a>
                             </li>
-                            <li class="delete"><a href="'.route('zq.admins.soft-delete', ['admin' => $user->id]).'" onclick=" return confirm(\'Are you sure to delete this admin?\');"><i class="icon-trash"></i></a></li>
+                            <li class="delete"><a href="' . route('zq.admins.soft-delete', ['admin' => $user->id]) . '" onclick=" return confirm(\'Are you sure to delete this admin?\');"><i class="icon-trash"></i></a></li>
                             <li class="activate">
-                                <a href="javascript:void(0);" class="btn-activate" data-id="'.$user->id.'" data-action="'.$activateAction.'">
-                                    '.$activateButton.'
+                                <a href="javascript:void(0);" class="btn-activate" data-id="' . $user->id . '" data-action="' . $activateAction . '">
+                                    ' . $activateButton . '
                                 </a>
                             </li>
                         </ul>';
 
-            $movies = $this->entertainment->where('category_id', 1)->where('user_id', $user->id)->where('is_active', 1)->get();
-            $shows = $this->entertainment->where('category_id', 2)->where('user_id', $user->id)->where('is_active', 1)->get();
-            $events = $this->entertainment->where('category_id', 3)->where('user_id', $user->id)->where('is_active', 1)->get();
 
             $newUser = [
-                'sno'       => $key +1,
+                'sno'       => $key + 1,
                 'email'     => $user->email,
-                'name'      => "<a href='".route('zq.admins.overview.details', ['admin' => $user->id])."'>".$user->name."</a>",
+                'name'      => "<a href='" . route('zq.admins.overview.details', ['admin' => $user->id]) . "'>" . $user->name . "</a>",
                 //'username'  => $user->username,
-                'movies'    =>  $movies->count(),
-                'shows'     =>  $shows->count(),
-                'events'    =>  $events->count(),
-                'date_added'=> date('M d, Y', strtotime($user->created_at)),
+                'movies'    =>  0,
+                'shows'     =>  0,
+                'events'    =>  0,
+                'date_added' => date('M d, Y', strtotime($user->created_at)),
                 'actions'   => $actions
             ];
             array_push($newUsers, $newUser);
@@ -356,150 +336,5 @@ class AdminController extends Controller
         $admin->save();
 
         return response()->json(['message' => 'Admin status updated successfully.'], 200);
-    }
-
-
-    public function adminOverview(User $admin){
-        //Categories
-        $categoryMovies = $this->categoryRepository->where('slug', 'movies')->first();
-        $categoryShows = $this->categoryRepository->where('slug', 'shows')->first();
-        $categoryEvents = $this->categoryRepository->where('slug', 'events')->first();
-
-        //Total
-        $allCount = $this->entertainmentRepository->count();
-        $adminAllCount = $this->entertainmentRepository->where('user_id', $admin->id)->count();
-
-        $moviesCount = $this->entertainmentRepository
-                        ->where('category_id', $categoryMovies->id)
-                        ->count();
-
-        $adminMoviesCount = $this->entertainmentRepository
-                            ->where('category_id', $categoryMovies->id)
-                            ->where('user_id', $admin->id)
-                            ->count();
-
-        $showsCount = $this->entertainmentRepository->where('category_id', $categoryShows->id)->count();
-        $adminShowsCount = $this->entertainmentRepository
-                           ->where('category_id', $categoryShows->id)
-                           ->where('user_id', $admin->id)
-                           ->count();
-
-        $eventsCount = $this->entertainmentRepository->where('category_id', $categoryEvents->id)->count();
-        $adminEventsCount = $this->entertainmentRepository
-                            ->where('category_id', $categoryEvents->id)
-                            ->where('user_id', $admin->id)
-                            ->count();
-
-        //overview of month
-        $currentDate = Carbon::now();
-        $startDateThisWeek = $currentDate->startOfWeek();
-        $startDate = $currentDate->subDays(5)->startOfDay();
-        $startDateToday = Carbon::today();
-
-        $moviesCountMonth = $this->entertainmentRepository
-                            ->where('category_id', $categoryMovies->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-                            ->count();
-        $adminMoviesCountMonth = $this->entertainmentRepository
-                            ->where('category_id', $categoryMovies->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-                            ->where('user_id', $admin->id)
-                            ->count();
-
-        $showsCountMonth = $this->entertainmentRepository
-                            ->where('category_id', $categoryShows->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-                            ->count();
-        $adminShowsCountMonth = $this->entertainmentRepository
-                            ->where('category_id', $categoryShows->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-                            ->where('user_id', $admin->id)
-                            ->count();
-
-        $eventsCountMonth = $this->entertainmentRepository
-                            ->where('category_id', $categoryEvents->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-                            ->count();
-        $adminEventsCountMonth = $this->entertainmentRepository
-                            ->where('category_id', $categoryEvents->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-                            ->where('user_id', $admin->id)
-                            ->count();
-
-        $totalCountMonth = $moviesCountMonth + $showsCountMonth + $eventsCountMonth;
-        $adminTotalCountMonth = $adminMoviesCountMonth + $adminShowsCountMonth + $adminEventsCountMonth;
-
-        //week overview
-        $moviesThisWeek =   $this->entertainmentRepository
-                            ->where('category_id', $categoryMovies->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                            ->count();
-        $adminMoviesThisWeek =   $this->entertainmentRepository
-                            ->where('category_id', $categoryMovies->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                            ->where('user_id', $admin->id)
-                            ->count();
-
-        $showsThisWeek = $this->entertainmentRepository
-                        ->where('category_id', $categoryShows->id)
-                        ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                        ->count();
-        $adminShowsThisWeek = $this->entertainmentRepository
-                        ->where('category_id', $categoryShows->id)
-                        ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                        ->where('user_id', $admin->id)
-                        ->count();
-
-        $eventsThisWeek = $this->entertainmentRepository
-                            ->where('category_id', $categoryEvents->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                            ->count();
-        $adminEventsThisWeek = $this->entertainmentRepository
-                            ->where('category_id', $categoryEvents->id)
-                            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                            ->where('user_id', $admin->id)
-                            ->count();
-
-        $totalCountWeek = $moviesThisWeek + $showsThisWeek + $eventsThisWeek;
-        $adminTotalCountWeek = $adminMoviesThisWeek + $adminShowsThisWeek + $adminEventsThisWeek;
-
-
-        //Today Overview
-        $moviesToday = $this->entertainmentRepository
-                        ->where('category_id', $categoryMovies->id)
-                        ->whereDate('created_at', Carbon::today())
-                        ->count();
-        $adminMoviesToday = $this->entertainmentRepository
-                        ->where('category_id', $categoryMovies->id)
-                        ->whereDate('created_at', Carbon::today())
-                        ->where('user_id', $admin->id)
-                        ->count();
-
-        $showsToday = $this->entertainmentRepository
-                        ->where('category_id', $categoryShows->id)
-                        ->whereDate('created_at', Carbon::today())
-                        ->count();
-        $adminShowsToday = $this->entertainmentRepository
-                        ->where('category_id', $categoryShows->id)
-                        ->whereDate('created_at', Carbon::today())
-                        ->where('user_id', $admin->id)
-                        ->count();
-
-        $eventsToday = $this->entertainmentRepository
-                        ->where('category_id', $categoryEvents->id)
-                        ->whereDate('created_at', Carbon::today())
-                        ->count();
-        $adminEventsToday = $this->entertainmentRepository
-                        ->where('category_id', $categoryEvents->id)
-                        ->whereDate('created_at', Carbon::today())
-                        ->where('user_id', $admin->id)
-                        ->count();
-
-        $totalCountToday = $moviesToday + $showsToday + $eventsToday;
-        $adminTotalCountToday = $adminMoviesToday + $adminShowsToday + $adminEventsToday;
-
-        $isRequiredTruflix = false;
-
-        return view('zq.admin.over_view', compact('admin','allCount','moviesCount','showsCount','eventsCount','moviesCountMonth','showsCountMonth','eventsCountMonth','moviesThisWeek','showsThisWeek','eventsThisWeek','moviesToday','showsToday','eventsToday','totalCountMonth','totalCountWeek','totalCountToday', 'adminMoviesCount', 'adminShowsCount', 'adminEventsCount', 'adminAllCount', 'adminTotalCountMonth', 'adminEventsCountMonth', 'adminShowsCountMonth', 'adminMoviesCountMonth', 'adminTotalCountWeek', 'adminMoviesThisWeek', 'adminShowsThisWeek', 'adminEventsThisWeek', 'adminTotalCountToday', 'adminMoviesToday', 'adminShowsToday', 'adminEventsToday', 'isRequiredTruflix'));
     }
 }
